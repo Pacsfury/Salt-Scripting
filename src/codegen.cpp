@@ -14,28 +14,42 @@ void generate(std::vector<Token> tokens) {
         return;
     }
 
-    int count = 0;
-    Token actual = tokens[count];
+    size_t count = 0;
+    
+    while (count < tokens.size() && tokens[count].type != TokenType::token_EOF) {
+        
+        Token actual = tokens[count]; 
 
-    if (actual.type == TokenType::keyword_print) {
-        if (tokens[++count].type == TokenType::token_lparen) {
-            count++;
+        if (actual.type == TokenType::keyword_print) {
+            if (count + 1 < tokens.size() && tokens[count + 1].type == TokenType::token_lparen) {
+                count += 2;
 
-            if (tokens[count].type == TokenType::token_l_string) {
-                int len = static_cast<int>(tokens[count].value.length());
-                for (int i = len - 1; i >= 0; --i) {
-                    output << "PUSH," << static_cast<int>(tokens[count].value[i]) << ", ";
+                if (count < tokens.size() && tokens[count].type == TokenType::token_l_string) {
+                    int len = static_cast<int>(tokens[count].value.length());
+                    
+                    for (int i = len - 1; i >= 0; --i) {
+                        output << "PUSH," << static_cast<int>(tokens[count].value[i]) << ", ";
+                    }
+                    for (int i = len - 1; i >= 0; --i) {
+                        output << "COUT," << "POP, ";
+                    }
+                    
+                    count++;
                 }
-                for (int i = len - 1; i >= 0; --i) {
-                    output << "COUT," << "POP, ";
-                }                
+                
+                if (count < tokens.size() && tokens[count].type == TokenType::token_rparen) {
+                    count++; 
+                }
+                
+                output << "\n"; 
+                continue;
             }
         }
+        
+        count++; 
     }
-
 
     output.close();
 
-    std::cout<<"------ VM EXECUTION ------\n";
     std::system("vm.exe");
 }

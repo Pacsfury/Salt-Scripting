@@ -26,6 +26,14 @@ Write a file, and run
 ./main run main.salt
 ```
 
+## Examples
+In the folder `examples/` you can find examples about various Salt aspects. As the language grows, more examples will appear. 
+
+To execute an example, run:
+```bash
+./main run "examples\1. Basic Output\example.salt"
+```
+
 ## Changelog
 
 ### 2026-07-19
@@ -34,3 +42,7 @@ Write a file, and run
 * Now to execute write a file
 * Use arguments
 * Add the VM exe code
+* Make it interpreted
+* Refactor code
+* Add examples/ folder
+* Make it able to execute more than one file

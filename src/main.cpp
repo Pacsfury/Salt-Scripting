@@ -21,9 +21,16 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    std::string input((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    std::string line;
+    std::cout << "------ VM EXECUTION ------\n";
 
-    generate(tokenize(input)); 
+    while (std::getline(file, line)) {
+        if (line.empty()) continue; 
+
+        generate(tokenize(line)); 
+    }
 
     return 0;
 }
+
+// cl /std:c++17 src/main.cpp src/*.cpp /EHsc

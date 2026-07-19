@@ -8,7 +8,7 @@ std::vector<Token> tokenize(std::string line) {
     int current = 0;
 
     while (line[current] != '\0') {
-        if (line[current] == ' ') {
+        if (line[current] == ' ' || line[current] == '\n' || line[current] == '\r') {
             current++;
             continue;
         }
@@ -48,6 +48,7 @@ std::vector<Token> tokenize(std::string line) {
                 }
                 break;
             }
+            
             default: {
                 int actl = current;
                 std::string buffer = "";
@@ -74,5 +75,8 @@ std::vector<Token> tokenize(std::string line) {
 
         current++;
     }
+    Token end;
+    end.type = TokenType::token_EOF;
+    tokenarray.push_back(end);
     return tokenarray;
 }

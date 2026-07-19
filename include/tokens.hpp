@@ -8,7 +8,8 @@ enum class TokenType  {
     token_lparen,
     token_l_string,
     token_name,
-    keyword_print
+    keyword_print,
+    token_EOF
 };
 
 struct Token {

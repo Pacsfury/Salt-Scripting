@@ -7,7 +7,7 @@
 ## Approach
 **Salt** is an **IN DEVELOPMENT** scripting language. With it, I want to make a language that compiles to my stack-based virtual machine, GoStack.
 
-When I started my virtual amchine in Go, I didn't expect it to be actually good, as I just wanted to use it to be less bored. But with some lat updates I did, it really leveled up, making me think "could I make a programming language that compiles to this?". And later I told myself: "just make the VM better". And so I did. In 2 days aprox. I added a lot of new operations and making it better overall.
+When I started my virtual machine in Go, I didn't expect it to be actually good, as I just wanted to use it to be less bored. But with some lat updates I did, it really leveled up, making me think "could I make a programming language that compiles to this?". And later I told myself: "just make the VM better". And so I did. In 2 days aprox. I added a lot of new operations and making it better overall.
 
 Salt is the result of the improvements of the VM, which led me to this: the possibility of creating another language, this time an interpreted one. A scripting language.
 

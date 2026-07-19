@@ -26,7 +26,12 @@ std::vector<Token> tokenize(std::string line) {
                 int actl = current + 1;
                 std::string buffer = "";
                 while (line[actl] != '"' && line[actl] != '\0') {
-                    buffer += line[actl++];
+                    if (line[actl] == '\\' && line[actl + 1] == 'n') {
+                        buffer += '\n';
+                        actl += 2; 
+                    } else {
+                        buffer += line[actl++];
+                    }
                 }
                 newtoken.type = TokenType::token_l_string;
                 newtoken.value = buffer;
@@ -39,16 +44,20 @@ std::vector<Token> tokenize(std::string line) {
                 int actl = current + 1;
                 std::string buffer = "";
                 while (line[actl] != '\'' && line[actl] != '\0') {
-                    buffer += line[actl++];
+                    if (line[actl] == '\\' && line[actl + 1] == 'n') {
+                        buffer += '\n';
+                        actl += 2; 
+                    } else {
+                        buffer += line[actl++];
+                    }
                 }
                 newtoken.type = TokenType::token_l_string;
                 newtoken.value = buffer;
-                if (line[actl] == '\'') {
+                if (line[actl] == '"') {
                     current = actl;
                 }
                 break;
-            }
-            
+            }   
             default: {
                 int actl = current;
                 std::string buffer = "";
@@ -75,8 +84,8 @@ std::vector<Token> tokenize(std::string line) {
 
         current++;
     }
-    Token end;
-    end.type = TokenType::token_EOF;
-    tokenarray.push_back(end);
+    Token eofToken;
+    eofToken.type = TokenType::token_EOF;
+    tokenarray.push_back(eofToken);
     return tokenarray;
 }

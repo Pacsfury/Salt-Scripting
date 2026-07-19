@@ -31,7 +31,7 @@ In the folder `examples/` you can find examples about various Salt aspects. As t
 
 To execute an example, run:
 ```bash
-./main run "examples\1. Basic Output\example.salt"
+./main run "examples\1. Basic Output\1.1.salt"
 ```
 
 ## Changelog
@@ -46,3 +46,5 @@ To execute an example, run:
 * Refactor code
 * Add examples/ folder
 * Make it able to execute more than one file
+* Add two examples
+* Add '\n'

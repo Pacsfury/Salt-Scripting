@@ -3,3 +3,4 @@
 *.obj
 *.pbd
 *.txt
+!vm.exe

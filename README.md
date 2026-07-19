@@ -21,22 +21,16 @@ I didn't want to overcomplicate too much, so I didn't make an AST, it goes from 
 _More syntax coming soon when it gets added_
 
 ## How To Execute
-Once compiled, you will see a file called `output.txt`. Copy everything inside that file and paste it here on the file `defs.go` of the virtual machine: (automatic execution coming soon)
-```go
-var program = []int{
-    //Paste here
-}
-```
-
-then, run the Go project.
-
+Write a file, and run
 ```bash
-go run .
+./main run main.salt
 ```
-
 
 ## Changelog
 
 ### 2026-07-19
 * Add first command: `print("hi")`
 * Wrote README
+* Now to execute write a file
+* Use arguments
+* Add the VM exe code

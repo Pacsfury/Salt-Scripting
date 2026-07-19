@@ -2,11 +2,12 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <cstdlib>
 #include "../include/tokens.hpp"
 #include "../include/codegen.hpp"
 
 void generate(std::vector<Token> tokens) {
-    std::ofstream output("output.txt");
+    std::ofstream output("program.gosb");
 
     if (!output.is_open()) {
         std::cerr << "Error opening the file!" << std::endl;
@@ -34,4 +35,7 @@ void generate(std::vector<Token> tokens) {
 
 
     output.close();
+
+    std::cout<<"------ VM EXECUTION ------\n";
+    std::system("vm.exe");
 }

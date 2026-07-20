@@ -8,7 +8,6 @@ std::vector<Token> tokenize(std::string line) {
     int current = 0;
 
     while (line[current] != '\0') {
-        // Ignorem espais, tabulacions i salts de línia
         if (line[current] == ' ' || line[current] == '\n' || line[current] == '\r' || line[current] == '\t') {
             current++;
             continue;
@@ -25,10 +24,9 @@ std::vector<Token> tokenize(std::string line) {
                 newtoken.type = TokenType::token_rparen;
                 break;
             case '=':
-                // Comprovem si el següent caràcter és '=' per formar '=='
                 if (line[current + 1] == '=') {
                     newtoken.type = TokenType::token_eqeq;
-                    current++; // Saltem el segon '='
+                    current++; 
                 }
                 break;
             case '"': {
@@ -67,7 +65,6 @@ std::vector<Token> tokenize(std::string line) {
                 int actl = current;
                 std::string buffer = "";
 
-                // Delimitem la paraula aturant-nos en qualsevol separador o control de línia
                 while (line[actl] != ' '  && line[actl] != '\0' &&
                        line[actl] != '\n' && line[actl] != '\r' && line[actl] != '\t' &&
                        line[actl] != '('  && line[actl] != ')'  &&

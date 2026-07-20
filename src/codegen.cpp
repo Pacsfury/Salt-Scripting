@@ -12,12 +12,10 @@ void generate(std::vector<Token> tokens) {
     
     size_t count = 0;
     
-    // Nombrem el bucle recorrent TOTS els tokens de la llista
     while (count < tokens.size()) {
         
         Token actual = tokens[count]; 
 
-        // Si trobem un EOF de final de línia, simplement el saltem i continuem
         if (actual.type == TokenType::token_EOF) {
             count++;
             continue;
@@ -48,10 +46,8 @@ void generate(std::vector<Token> tokens) {
                 continue;
             }
         } else if (actual.type == TokenType::keyword_if) {
-            count++; // Consumim 'if'
+            count++;
 
-            // Primer operand: si no hi ha número vàlid, posem 0 per defecte
-            // (així EQ SEMPRE rep 2 valors i no desequilibrem la pila)
             if (count < tokens.size() && tokens[count].type == TokenType::token_number) {
                 code.push_back("PUSH, " + tokens[count].value + ",");
                 count++;
@@ -63,7 +59,6 @@ void generate(std::vector<Token> tokens) {
                 count++;
             }
 
-            // Segon operand: mateixa protecció
             if (count < tokens.size() && tokens[count].type == TokenType::token_number) {
                 code.push_back("PUSH, " + tokens[count].value + ",");
                 count++;
@@ -79,7 +74,7 @@ void generate(std::vector<Token> tokens) {
             continue;
 
         } else if (actual.type == TokenType::keyword_end) {
-            count++; // Consumim 'end'
+            count++;
 
             if (!unresolved_jumps.empty()) {
                 size_t jump_idx = unresolved_jumps.back();
@@ -87,8 +82,6 @@ void generate(std::vector<Token> tokens) {
 
                 size_t target_instruction = code.size();
 
-                // RESTEM 1 AL TARGET PER COMPENSAR EL pc++ DE GOSTACK
-                // Protecció extra per evitar underflow de size_t si target_instruction fos 0
                 size_t compensated = (target_instruction == 0) ? 0 : target_instruction - 1;
 
                 code[jump_idx] = "JIZ, " + std::to_string(compensated) + ",";

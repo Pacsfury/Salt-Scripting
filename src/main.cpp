@@ -22,15 +22,21 @@ int main(int argc, char* argv[]) {
     }
 
     std::string line;
-    std::cout << "------ VM EXECUTION ------\n";
+    std::vector<Token> all_tokens;
 
     while (std::getline(file, line)) {
         if (line.empty()) continue; 
 
-        generate(tokenize(line)); 
+        std::vector<Token> line_tokens = tokenize(line);
+        all_tokens.insert(all_tokens.end(), line_tokens.begin(), line_tokens.end());
     }
+
+    file.close();
+
+    std::cout << "------ VM EXECUTION ------\n";
+    generate(all_tokens); 
 
     return 0;
 }
 
-// cl /std:c++17 src/main.cpp src/*.cpp /EHsc
+// cl /std:c++17 src/main.cpp src/*.cpp /EHsc ; ./main run main.salt

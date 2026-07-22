@@ -48,3 +48,7 @@ To execute an example, run:
 * Make it able to execute more than one file
 * Add two examples
 * Add '\n'
+
+### 2026-07-22
+* Implement if
+* Add if examples

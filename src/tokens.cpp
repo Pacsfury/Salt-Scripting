@@ -60,15 +60,15 @@ std::vector<Token> tokenize(std::string line) {
                 newtoken.value = buffer;
                 if (line[actl] == '\'') current = actl;
                 break;
-            }   
-            default: {
+            } default: {
                 int actl = current;
                 std::string buffer = "";
 
                 while (line[actl] != ' '  && line[actl] != '\0' &&
-                       line[actl] != '\n' && line[actl] != '\r' && line[actl] != '\t' &&
-                       line[actl] != '('  && line[actl] != ')'  &&
-                       line[actl] != '"'  && line[actl] != '\'') {
+                    line[actl] != '\n' && line[actl] != '\r' && line[actl] != '\t' &&
+                    line[actl] != '('  && line[actl] != ')'  &&
+                    line[actl] != '"'  && line[actl] != '\'' &&
+                    line[actl] != '=') {
                     buffer += line[actl++];
                 }
                 

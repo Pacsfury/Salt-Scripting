@@ -1,7 +1,7 @@
-if 5==5 
-    print("Són iguals!\n") 
+if 5 == 5 
+    print("This prints!\n") 
 end
 
-if 10==20 
-    print("Això no s'imprimirà mai\n") 
+if 10 == 20 
+    print("This doesn't print\n") 
 end

@@ -8,13 +8,19 @@
 
 void generate(std::vector<Token> tokens) {
     std::vector<std::string> code;
-    std::vector<size_t> unresolved_jumps; 
-    
+    std::vector<size_t> unresolved_jumps;
+
     size_t count = 0;
-    
+
+    size_t pc_slot = 0;
+
+    auto emit = [&](const std::string& instr, bool has_arg) {
+        code.push_back(instr);
+        pc_slot += has_arg ? 2 : 1;
+    };
+
     while (count < tokens.size()) {
-        
-        Token actual = tokens[count]; 
+        Token actual = tokens[count];
 
         if (actual.type == TokenType::token_EOF) {
             count++;
@@ -27,32 +33,32 @@ void generate(std::vector<Token> tokens) {
 
                 if (count < tokens.size() && tokens[count].type == TokenType::token_l_string) {
                     int len = static_cast<int>(tokens[count].value.length());
-                    
+
                     for (int i = len - 1; i >= 0; --i) {
-                        code.push_back("PUSH, " + std::to_string(static_cast<int>(tokens[count].value[i])) + ",");
+                        emit("PUSH, " + std::to_string(static_cast<int>(tokens[count].value[i])) + ",", true);
                     }
                     for (int i = len - 1; i >= 0; --i) {
-                        code.push_back("COUT,");
-                        code.push_back("POP,");
+                        emit("COUT,", false);
+                        emit("POP,", false);
                     }
-                    
+
                     count++;
                 }
-                
+
                 if (count < tokens.size() && tokens[count].type == TokenType::token_rparen) {
-                    count++; 
+                    count++;
                 }
-                
+
                 continue;
             }
         } else if (actual.type == TokenType::keyword_if) {
             count++;
 
             if (count < tokens.size() && tokens[count].type == TokenType::token_number) {
-                code.push_back("PUSH, " + tokens[count].value + ",");
+                emit("PUSH, " + tokens[count].value + ",", true);
                 count++;
             } else {
-                code.push_back("PUSH, 0,");
+                emit("PUSH, 0,", true);
             }
 
             if (count < tokens.size() && tokens[count].type == TokenType::token_eqeq) {
@@ -60,16 +66,16 @@ void generate(std::vector<Token> tokens) {
             }
 
             if (count < tokens.size() && tokens[count].type == TokenType::token_number) {
-                code.push_back("PUSH, " + tokens[count].value + ",");
+                emit("PUSH, " + tokens[count].value + ",", true);
                 count++;
             } else {
-                code.push_back("PUSH, 0,");
+                emit("PUSH, 0,", true);
             }
 
-            code.push_back("EQ,");
+            emit("EQ,", false);
 
             unresolved_jumps.push_back(code.size());
-            code.push_back("JIZ, {PENDENT},");
+            emit("JIZ, {PENDENT},", true);
 
             continue;
 
@@ -80,17 +86,15 @@ void generate(std::vector<Token> tokens) {
                 size_t jump_idx = unresolved_jumps.back();
                 unresolved_jumps.pop_back();
 
-                size_t target_instruction = code.size();
+                size_t target_slot = pc_slot;
 
-                size_t compensated = (target_instruction == 0) ? 0 : target_instruction - 1;
-
-                code[jump_idx] = "JIZ, " + std::to_string(compensated) + ",";
+                code[jump_idx] = "JIZ, " + std::to_string(target_slot) + ",";
             }
 
             continue;
         }
-        
-        count++; 
+
+        count++;
     }
 
     std::ofstream output("program.gosb");

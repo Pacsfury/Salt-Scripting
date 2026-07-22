@@ -1,26 +1,33 @@
 #include <string>
 #include <vector>
+#include <cctype>
 #include "../include/tokens.hpp"
 
 std::vector<Token> tokenize(std::string line) {
     std::vector<Token> tokenarray;
-
     int current = 0;
 
     while (line[current] != '\0') {
-        if (line[current] == ' ' || line[current] == '\n' || line[current] == '\r') {
+        if (line[current] == ' ' || line[current] == '\n' || line[current] == '\r' || line[current] == '\t') {
             current++;
             continue;
         }
 
         char src = line[current];
         Token newtoken;
+
         switch (src) {
             case '(':
                 newtoken.type = TokenType::token_lparen;
                 break;
             case ')':
                 newtoken.type = TokenType::token_rparen;
+                break;
+            case '=':
+                if (line[current + 1] == '=') {
+                    newtoken.type = TokenType::token_eqeq;
+                    current++; 
+                }
                 break;
             case '"': {
                 int actl = current + 1;
@@ -35,9 +42,7 @@ std::vector<Token> tokenize(std::string line) {
                 }
                 newtoken.type = TokenType::token_l_string;
                 newtoken.value = buffer;
-                if (line[actl] == '"') {
-                    current = actl;
-                }
+                if (line[actl] == '"') current = actl;
                 break;
             }
             case '\'': {
@@ -53,25 +58,42 @@ std::vector<Token> tokenize(std::string line) {
                 }
                 newtoken.type = TokenType::token_l_string;
                 newtoken.value = buffer;
-                if (line[actl] == '"') {
-                    current = actl;
-                }
+                if (line[actl] == '\'') current = actl;
                 break;
-            }   
-            default: {
+            } default: {
                 int actl = current;
                 std::string buffer = "";
-                while (line[actl] != ' ' && line[actl] != '\0' &&
-                       line[actl] != '(' && line[actl] != ')' &&
-                       line[actl] != '"' && line[actl] != '\'') {
+
+                while (line[actl] != ' '  && line[actl] != '\0' &&
+                    line[actl] != '\n' && line[actl] != '\r' && line[actl] != '\t' &&
+                    line[actl] != '('  && line[actl] != ')'  &&
+                    line[actl] != '"'  && line[actl] != '\'' &&
+                    line[actl] != '=') {
                     buffer += line[actl++];
                 }
                 
                 if (buffer == "print") {
                     newtoken.type = TokenType::keyword_print;
+                } else if (buffer == "if") {
+                    newtoken.type = TokenType::keyword_if;
+                } else if (buffer == "end") {
+                    newtoken.type = TokenType::keyword_end;                   
                 } else {
-                    newtoken.type = TokenType::token_name;
-                    newtoken.value = buffer;
+                    bool is_number = !buffer.empty();
+                    for (char c : buffer) {
+                        if (!std::isdigit(c)) {
+                            is_number = false;
+                            break;
+                        }
+                    }
+
+                    if (is_number) {
+                        newtoken.type = TokenType::token_number;
+                        newtoken.value = buffer;
+                    } else {
+                        newtoken.type = TokenType::token_name;
+                        newtoken.value = buffer;
+                    }
                 }
 
                 if (actl > current) {
@@ -80,10 +102,11 @@ std::vector<Token> tokenize(std::string line) {
                 break;
             }
         }
+        
         tokenarray.push_back(newtoken);
-
         current++;
     }
+
     Token eofToken;
     eofToken.type = TokenType::token_EOF;
     tokenarray.push_back(eofToken);

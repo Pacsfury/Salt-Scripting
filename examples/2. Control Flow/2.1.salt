@@ -1,0 +1,7 @@
+if "hello" == "hello"
+  print("This prints!\n")
+end
+
+if 4==1
+  print("This won't print\n")
+end

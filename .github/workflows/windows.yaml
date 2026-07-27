@@ -20,4 +20,4 @@ jobs:
       run: cl.exe /std:c++20 /EHsc src/*.cpp /Fe:yarc.exe
 
     - name: Test
-      run: ./yarc run "../../examples/1. Basic Output/1.1.salt"
+      run: ./yarc run 1.1.salt

@@ -1,0 +1,23 @@
+name: C++ (Windows Direct)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Configure Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Build
+      run: cl.exe /std:c++20 /EHsc src/*.cpp /Fe:yarc.exe
+
+    - name: Test
+      run: .\yarc.exe --test

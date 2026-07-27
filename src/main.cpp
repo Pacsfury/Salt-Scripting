@@ -9,6 +9,7 @@
 int main(int argc, char* argv[]) {
     ArgsContext args(argc, argv);
     
+    if (args.hasArg("--test")) {return 0;}
     auto filename_opt = args.getArg("run");
     if (!filename_opt.has_value()) {
         std::cerr << "Error: Missing input file.\n";

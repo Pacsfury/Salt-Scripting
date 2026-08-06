@@ -20,6 +20,13 @@ I didn't want to overcomplicate too much, so I didn't make an AST, it goes from 
 
 _More syntax coming soon when it gets added_
 
+### If
+```
+if 1==1
+  print("hi")
+end
+```
+
 ## How To Execute
 Write a file, and run
 ```bash

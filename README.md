@@ -59,3 +59,6 @@ To execute an example, run:
 ### 2026-07-22
 * Implement if
 * Add if examples
+
+### 2026-08-07
+* Make `print` work using substacks

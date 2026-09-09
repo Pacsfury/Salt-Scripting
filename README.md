@@ -62,3 +62,6 @@ To execute an example, run:
 
 ### 2026-08-07
 * Make `print` work using substacks
+
+### 2026-09-09
+* Compie to ZinkASM with `--zink`

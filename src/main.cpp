@@ -18,7 +18,7 @@ int main(int argc, char* argv[]) {
 
     std::ifstream file((std::string(filename_opt.value())));
     if (!file) {
-        std::cerr << "Error: Couldn't open file.\n";
+        std::cerr << "Error: Couldn't open file.\n" << std::string(filename_opt.value());
         return 1;
     }
 
@@ -35,7 +35,11 @@ int main(int argc, char* argv[]) {
     file.close();
 
     std::cout << "------ VM EXECUTION ------\n";
-    generate(all_tokens); 
+    if (args.hasArg("--zink")) {
+        generate(all_tokens, "zink");
+    } else {
+        generate(all_tokens);
+    }
 
     return 0;
 }

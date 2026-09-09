@@ -3,110 +3,215 @@
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
+#include <format>
 #include "../include/tokens.hpp"
 #include "../include/codegen.hpp"
 
-void generate(std::vector<Token> tokens) {
-    std::vector<std::string> code;
-    std::vector<size_t> unresolved_jumps;
+void generate(std::vector<Token> tokens, std::string lang) {
+    if (lang == "gostack") {
+        std::vector<std::string> code;
+        std::vector<size_t> unresolved_jumps;
 
-    size_t count = 0;
+        size_t count = 0;
 
-    size_t pc_slot = 0;
+        size_t pc_slot = 0;
 
-    auto emit = [&](const std::string& instr, bool has_arg) {
-        code.push_back(instr);
-        pc_slot += has_arg ? 2 : 1;
-    };
+        auto emit = [&](const std::string& instr, bool has_arg) {
+            code.push_back(instr);
+            pc_slot += has_arg ? 2 : 1;
+        };
 
-    while (count < tokens.size()) {
-        Token actual = tokens[count];
+        while (count < tokens.size()) {
+            Token actual = tokens[count];
 
-        if (actual.type == TokenType::token_EOF) {
-            count++;
-            continue;
-        }
+            if (actual.type == TokenType::token_EOF) {
+                count++;
+                continue;
+            }
 
-        if (actual.type == TokenType::keyword_print) {
-            if (count + 1 < tokens.size() && tokens[count + 1].type == TokenType::token_lparen) {
-                count += 2;
-                emit("SCRT, 1,SGO,1,", false);
+            if (actual.type == TokenType::keyword_print) {
+                if (count + 1 < tokens.size() && tokens[count + 1].type == TokenType::token_lparen) {
+                    count += 2;
+                    emit("SCRT, 1,SGO,1,", false);
 
-                if (count < tokens.size() && tokens[count].type == TokenType::token_l_string) {
-                    int len = static_cast<int>(tokens[count].value.length());
+                    if (count < tokens.size() && tokens[count].type == TokenType::token_l_string) {
+                        int len = static_cast<int>(tokens[count].value.length());
 
-                    for (int i = 0 ; i < len; i++) {
-                        emit("PUSH, " + std::to_string(static_cast<int>(tokens[count].value[i])) + ",", true);
-                        emit("SPSH,", false);
+                        for (int i = 0 ; i < len; i++) {
+                            emit("PUSH, " + std::to_string(static_cast<int>(tokens[count].value[i])) + ",", true);
+                            emit("SPSH,", false);
+                        }
+                        emit("SRUN, COUT, 1,", false);
+
+                        count++;
                     }
-                    emit("SRUN, COUT, 1,", false);
 
+                    if (count < tokens.size() && tokens[count].type == TokenType::token_rparen) {
+                        count++;
+                    }
+
+                    continue;
+                }
+            } else if (actual.type == TokenType::keyword_if) {
+                count++;
+
+                if (count < tokens.size() && tokens[count].type == TokenType::token_number) {
+                    emit("PUSH, " + tokens[count].value + ",", true);
+                    count++;
+                } else {
+                    emit("PUSH, 0,", true);
+                }
+
+                if (count < tokens.size() && tokens[count].type == TokenType::token_eqeq) {
                     count++;
                 }
 
-                if (count < tokens.size() && tokens[count].type == TokenType::token_rparen) {
+                if (count < tokens.size() && tokens[count].type == TokenType::token_number) {
+                    emit("PUSH, " + tokens[count].value + ",", true);
                     count++;
+                } else {
+                    emit("PUSH, 0,", true);
+                }
+
+                emit("EQ,", false);
+
+                unresolved_jumps.push_back(code.size());
+                emit("JIZ, {PENDENT},", true);
+
+                continue;
+
+            } else if (actual.type == TokenType::keyword_end) {
+                count++;
+
+                if (!unresolved_jumps.empty()) {
+                    size_t jump_idx = unresolved_jumps.back();
+                    unresolved_jumps.pop_back();
+
+                    size_t target_slot = pc_slot;
+
+                    code[jump_idx] = "JIZ, " + std::to_string(target_slot) + ",";
                 }
 
                 continue;
             }
-        } else if (actual.type == TokenType::keyword_if) {
+
             count++;
-
-            if (count < tokens.size() && tokens[count].type == TokenType::token_number) {
-                emit("PUSH, " + tokens[count].value + ",", true);
-                count++;
-            } else {
-                emit("PUSH, 0,", true);
-            }
-
-            if (count < tokens.size() && tokens[count].type == TokenType::token_eqeq) {
-                count++;
-            }
-
-            if (count < tokens.size() && tokens[count].type == TokenType::token_number) {
-                emit("PUSH, " + tokens[count].value + ",", true);
-                count++;
-            } else {
-                emit("PUSH, 0,", true);
-            }
-
-            emit("EQ,", false);
-
-            unresolved_jumps.push_back(code.size());
-            emit("JIZ, {PENDENT},", true);
-
-            continue;
-
-        } else if (actual.type == TokenType::keyword_end) {
-            count++;
-
-            if (!unresolved_jumps.empty()) {
-                size_t jump_idx = unresolved_jumps.back();
-                unresolved_jumps.pop_back();
-
-                size_t target_slot = pc_slot;
-
-                code[jump_idx] = "JIZ, " + std::to_string(target_slot) + ",";
-            }
-
-            continue;
         }
 
-        count++;
+        std::ofstream output("program.gosb");
+        if (!output.is_open()) {
+            std::cerr << "Error opening the file!" << std::endl;
+            return;
+        }
+
+        for (const std::string& instruction : code) {
+            output << instruction << "\n";
+        }
+
+        output.close();
+
+        std::system("vm.exe");
+
+    } else if (lang == "zink") {
+        int hex_cp = 0x00;
+
+        std::vector<std::string> code;
+        std::vector<size_t> unresolved_jumps;
+
+        size_t count = 0;
+
+        size_t pc_slot = 0;
+
+        auto emit = [&](const std::string& instr, bool has_arg) {
+            code.push_back(instr);
+            pc_slot += has_arg ? 2 : 1;
+        };
+
+        while (count < tokens.size()) {
+            Token actual = tokens[count];
+
+            if (actual.type == TokenType::token_EOF) {
+                count++;
+                continue;
+            }
+
+            if (actual.type == TokenType::keyword_print) {
+                if (count + 1 < tokens.size() && tokens[count + 1].type == TokenType::token_lparen) {
+                    count += 2;
+                    emit(std::format("%SCONST \"{}\"\n", tokens[count].value), false);
+
+
+                    if (count < tokens.size() && tokens[count].type == TokenType::token_l_string) {
+                        int len = static_cast<int>(tokens[count].value.length());
+
+                        emit(std::format("push\n0x{:02x}\nsprint\n", hex_cp), false);
+                        hex_cp++;
+                        count++;
+                    }
+
+                    if (count < tokens.size() && tokens[count].type == TokenType::token_rparen) {
+                        count++;
+                    }
+
+                    continue;
+                }
+            } else if (actual.type == TokenType::keyword_if) {
+                count++;
+
+                if (count < tokens.size() && tokens[count].type == TokenType::token_number) {
+                    emit("push\n" + tokens[count].value + "\n", true);
+                    count++;
+                } else {
+                    emit("push\n0x00\n,", true);
+                }
+
+                if (count < tokens.size() && tokens[count].type == TokenType::token_eqeq) {
+                    count++;
+                }
+
+                if (count < tokens.size() && tokens[count].type == TokenType::token_number) {
+                    emit("push\n" + tokens[count].value, true);
+                    count++;
+                } else {
+                    emit("push\n0x00\n", true);
+                }
+
+                emit("equ", false);
+
+                unresolved_jumps.push_back(code.size());
+                emit("jiz\n {PENDENT}\n", true);
+
+                continue;
+
+            } else if (actual.type == TokenType::keyword_end) {
+                count++;
+
+                if (!unresolved_jumps.empty()) {
+                    size_t jump_idx = unresolved_jumps.back();
+                    unresolved_jumps.pop_back();
+
+                    size_t target_slot = pc_slot;
+
+                    code[jump_idx] = "jiz\n" + std::to_string(target_slot);
+                }
+
+                continue;
+            }
+
+            count++;
+        }
+
+        std::ofstream output("text.zmb");
+        if (!output.is_open()) {
+            std::cerr << "Error opening the file!" << std::endl;
+            return;
+        }
+
+        for (const std::string& instruction : code) {
+            output << instruction << "\n";
+        }
+
+        output.close();
+
     }
-
-    std::ofstream output("program.gosb");
-    if (!output.is_open()) {
-        std::cerr << "Error opening the file!" << std::endl;
-        return;
-    }
-
-    for (const std::string& instruction : code) {
-        output << instruction << "\n";
-    }
-
-    output.close();
-
-    std::system("vm.exe");
 }

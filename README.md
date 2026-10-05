@@ -13,6 +13,8 @@ Salt is the result of the improvements of the VM, which led me to this: the poss
 
 I didn't want to overcomplicate too much, so I didn't make an AST, it goes from tokens to bytecode. This has its good and bad things as everything, but I think that design is making development easier.
 
+Salt is just an experimental and toy compiler.
+
 ## Syntax
 
 ### Output
